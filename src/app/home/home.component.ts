@@ -19,7 +19,7 @@ import { AuthService } from '../auth/auth.service';
       <tr *ngFor="let file of files">
         <td *ngIf="file.folder"><a (click)="openFolder(file)" [routerLink]="['./']">{{file.name}}</a></td>
         <td *ngIf="!file.folder"><a href="{{file['@microsoft.graph.downloadUrl']}}  "> {{file.name}}</a></td>
-        // <td *ngIf="!file.folder" (click)="deleteFile(file)" >delete</td>
+         <td *ngIf="!file.folder" (click)="deleteFile(file)" ><button (click)="deleteFile(file)">delete</button></td>
       </tr>
       // <button (click)="uploadFile(file)">Upload</button>
     </table>
@@ -54,6 +54,25 @@ export class HomeComponent implements OnInit, OnDestroy {
      });
   }
 
+  deleteFile(file)
+  {
+
+    console.log('deleted');
+    this.http.get<any>('https://graph.microsoft.com/v1.0/me/drive', this.httpOptions).subscribe(res => {
+
+      console.log(this.httpOptions);
+  
+        //here we will use the drive id and access the sub folders
+        this.http.delete<any>('https://graph.microsoft.com/v1.0/me/drives/'+ res.id +'/items/'+file.id, this.httpOptions).subscribe(resd => {
+          this.files = resd.value;
+          console.log(this.files);
+  
+          // localStorage.setItem('credential','')
+         });
+       });
+
+  }
+
 // Doesn't work 
   uploadFile(file)
   {
@@ -82,8 +101,10 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     this.http.get<any>('https://graph.microsoft.com/v1.0/me/drive', this.httpOptions).subscribe(res => {
 
+    console.log(this.httpOptions);
+
       //here we will use the drive id and access the sub folders
-      this.http.get<any>('https://graph.microsoft.com/v1.0/me/drives/'+ res.id +'/items/'+file.id+'/children', this.httpOptions).subscribe(resd => {
+      this.http.put<any>('https://graph.microsoft.com/v1.0/me/drives/'+ res.id +'/items/'+'6E4E8A3E95E74C1E!157'+'/children', this.httpOptions).subscribe(resd => {
         this.files = resd.value;
         console.log(this.files);
 
@@ -105,6 +126,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
         // localStorage.setItem('credential','')
        });
+       
      });
 
   }
